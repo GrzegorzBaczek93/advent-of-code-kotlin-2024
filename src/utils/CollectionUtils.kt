@@ -105,3 +105,11 @@ inline fun <T> Iterable<T>.sumOfIndexed(selector: (Int, T) -> Long): Long {
     }
     return sum
 }
+
+/**
+ * Increases value in index element or put default value there instead
+ */
+fun <K> MutableMap<K, Int>.putOrIncreaseBy(key: K, value: Int = 1) {
+    val current = getOrDefault(key, 0)
+    this[key] = current + value
+}
