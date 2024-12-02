@@ -6,10 +6,11 @@ import utils.without
 import kotlin.math.abs
 
 fun main() {
-    val testInput = readInput("input_02_test")
-    val input = readInput("input_02")
+    val testInput = readInput("input_day02_test")
+    val input = readInput("input_day02")
 
     withStopwatch {
+        println("Safe reports: ${testInput.countSafe()}")
         println("Safe reports: ${input.countSafe()}")
     }
 }

@@ -6,10 +6,12 @@ import utils.withStopwatch
 import kotlin.math.abs
 
 fun main() {
-    val testInput = readInput("input_01_test")
-    val input = readInput("input_01")
+    val testInput = readInput("input_day01_test")
+    val input = readInput("input_day01")
 
     withStopwatch {
+        println("Distance: ${calculateDistance(testInput)}")
+        println("Similarity: ${calculateSimilarity(testInput)}")
         println("Distance: ${calculateDistance(input)}")
         println("Similarity: ${calculateSimilarity(input)}")
     }
