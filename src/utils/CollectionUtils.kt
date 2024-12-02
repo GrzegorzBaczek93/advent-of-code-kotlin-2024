@@ -113,3 +113,15 @@ fun <K> MutableMap<K, Int>.putOrIncreaseBy(key: K, value: Int = 1) {
     val current = getOrDefault(key, 0)
     this[key] = current + value
 }
+
+/**
+ * Returns a list without item at given position or original list if index is out of range
+ */
+fun <T> List<T>.without(index: Int): List<T> {
+    if (isEmpty()) return this
+    if (index !in indices) return this
+
+    val mutable = this.toMutableList()
+    mutable.removeAt(index)
+    return mutable
+}
