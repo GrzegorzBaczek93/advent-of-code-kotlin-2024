@@ -8,8 +8,8 @@ fun main() {
     val input = readInput("input_day05")
 
     withStopwatch {
-        println(solve(testInput))
         println(solve(input))
+        println(solveWithCorrection(input))
     }
 }
 
@@ -31,6 +31,39 @@ private fun solve(input: List<String>): Int {
             }
         }
         if (isCorrect) result += parsedUpdate[parsedUpdate.size / 2]
+    }
+
+    return result
+}
+
+private fun solveWithCorrection(input: List<String>): Int {
+    val (orderingRules, updates) = getOrderingRules(input)
+    val parsedRules = parseOrderingRules(orderingRules)
+    var result = 0
+
+    updates.forEach { update ->
+        val parsedUpdate = parseUpdate(update)
+        val correctedUpdate = mutableListOf<Int>()
+        var isCorrect = true
+
+        parsedUpdate.forEachIndexed { index, i ->
+            val rules = parsedRules.getOrDefault(i, emptySet())
+            val possiblyIncorrectIndex = parsedUpdate.slice(0..<index).indexOfFirst { rules.contains(it) }
+            if (possiblyIncorrectIndex != -1) {
+                isCorrect = false
+                run correction@ {
+                    (index - 1 downTo 0).forEach { i2 ->
+                        if (correctedUpdate.slice(0..<i2).indexOfFirst { rules.contains(it) } == -1) {
+                            correctedUpdate.add(i2, i)
+                            return@correction
+                        }
+                    }
+                }
+            } else {
+                correctedUpdate.addLast(i)
+            }
+        }
+        if (!isCorrect) result += correctedUpdate[correctedUpdate.size / 2]
     }
 
     return result
