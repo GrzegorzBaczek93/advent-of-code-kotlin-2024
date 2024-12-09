@@ -48,12 +48,11 @@ private fun solveWithCorrection(input: List<String>): Int {
 
         parsedUpdate.forEachIndexed { index, i ->
             val rules = parsedRules.getOrDefault(i, emptySet())
-            val possiblyIncorrectIndex = parsedUpdate.slice(0..<index).indexOfFirst { rules.contains(it) }
-            if (possiblyIncorrectIndex != -1) {
+            if (parsedUpdate.firstIncorrectIndex(index, rules) != -1) {
                 isCorrect = false
-                run correction@ {
+                run correction@{
                     (index - 1 downTo 0).forEach { i2 ->
-                        if (correctedUpdate.slice(0..<i2).indexOfFirst { rules.contains(it) } == -1) {
+                        if (correctedUpdate.firstIncorrectIndex(i2, rules) == -1) {
                             correctedUpdate.add(i2, i)
                             return@correction
                         }
@@ -68,6 +67,9 @@ private fun solveWithCorrection(input: List<String>): Int {
 
     return result
 }
+
+private fun List<Int>.firstIncorrectIndex(index: Int, rules: Set<Int>) =
+    this.slice(0..<index).indexOfFirst { rules.contains(it) }
 
 private fun getOrderingRules(input: List<String>): Pair<List<String>, List<String>> {
     val emptyLineIndex = input.indexOfFirst { it.isEmpty() }
