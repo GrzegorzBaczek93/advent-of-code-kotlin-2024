@@ -29,15 +29,18 @@ private fun solve(input: List<String>): Long {
 private fun verifyOperators(first: Long, rest: List<Long>, testValue: Long): Int {
     val addition = first + rest.first()
     val multiplication = first * rest.first()
+    val concatenation = "$first${rest.first()}".toLong()
 
     if (rest.size == 1) {
         val b1 = if (addition == testValue) 1 else 0
         val b2 = if (multiplication == testValue) 1 else 0
-        return b1 + b2
+        val b3 = if (concatenation == testValue) 1 else 0
+        return b1 + b2 + b3
     }
 
     val r1 = verifyOperators(addition, rest.slice(1..rest.indices.last), testValue)
     val r2 = verifyOperators(multiplication, rest.slice(1..rest.indices.last), testValue)
+    val r3 = verifyOperators(concatenation, rest.slice(1..rest.indices.last), testValue)
 
-    return r1 + r2
+    return r1 + r2 + r3
 }
