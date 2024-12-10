@@ -6,6 +6,8 @@ import utils.swap
 import utils.walkIndexed
 import utils.withStopwatch
 
+private const val MAX_PATH_LENGTH = 25000
+
 private enum class Direction(val character: Char) {
     Up('^') {
         override fun nextPosition(position: Point) = Point(position.x, position.y - 1)
@@ -37,35 +39,90 @@ fun main() {
     val input = readInput("input_day06")
 
     withStopwatch {
-        println(input.countGuardRoute())
+        val (position, direction) = input.findGuard()
+        val cleanBoard = input.clearBoard(position)
+        val guardPath = guardPath(cleanBoard, position, direction)
+        println(possibleObstructions(cleanBoard, position, direction, guardPath.minus(position)).count())
     }
 }
 
-private fun List<String>.countGuardRoute(): Int {
-    var (position, direction) = this.findGuard()
-    val cleanBoard = this.clearBoard(position)
+private fun possibleObstructions(
+    board: List<String>,
+    position: Point,
+    direction: Direction,
+    guardPath: Set<Point>,
+): Set<Point> {
+    val possibleObstructions = mutableSetOf<Point>()
+    val mutableGuardPath = guardPath.toMutableSet()
+
+    while (mutableGuardPath.isNotEmpty()) {
+        val obstacle = mutableGuardPath.first()
+        if (verifyPath(board, position, direction, obstacle)) {
+            possibleObstructions.add(obstacle)
+        }
+        mutableGuardPath.remove(obstacle)
+    }
+    return possibleObstructions
+}
+
+private fun verifyPath(
+    board: List<String>,
+    position: Point,
+    direction: Direction,
+    obstacle: Point
+): Boolean {
+    var counter = 0
+    var currentPosition = position
+    var currentDirection = direction
+    val visitedPositions = mutableMapOf<Point, Direction>()
+
+    while (counter < MAX_PATH_LENGTH) {
+        val nextPosition = currentDirection.nextPosition(currentPosition)
+
+        when {
+            !board.isInBounds(nextPosition) -> return false
+            board.getChar(nextPosition) == '#' || nextPosition == obstacle -> {
+                currentDirection = currentDirection.changeDirection()
+            }
+
+            board.getChar(nextPosition) == '.' -> {
+                counter++
+                currentPosition = nextPosition
+                if (visitedPositions[currentPosition] == currentDirection) return true
+                visitedPositions[currentPosition] = currentDirection
+            }
+        }
+    }
+    return false
+}
+
+private fun guardPath(
+    board: List<String>,
+    position: Point,
+    direction: Direction,
+): Set<Point> {
+    var currentPosition = position
+    var currentDirection = direction
     val visitedPositions = mutableSetOf<Point>()
     visitedPositions.add(position)
 
-    while (cleanBoard.isInBounds(position)) {
-        val nextPosition = direction.nextPosition(position)
-
-        if (!cleanBoard.isInBounds(nextPosition)) break
+    while (board.isInBounds(currentPosition)) {
+        val nextPosition = currentDirection.nextPosition(currentPosition)
 
         when {
-            cleanBoard.getChar(nextPosition) == '.' -> {
-                position = nextPosition
+            !board.isInBounds(nextPosition) -> break
+            board.getChar(nextPosition) == '.' -> {
+                currentPosition = nextPosition
+                visitedPositions.add(currentPosition)
             }
 
-            cleanBoard.getChar(nextPosition) == '#' -> {
-                direction = direction.changeDirection()
-                position = direction.nextPosition(position)
+            board.getChar(nextPosition) == '#' -> {
+                currentDirection = currentDirection.changeDirection()
             }
         }
-        visitedPositions.add(position)
     }
 
-    return visitedPositions.size
+    return visitedPositions
 }
 
 private fun List<String>.findGuard(): Pair<Point, Direction> {
@@ -89,13 +146,19 @@ private fun List<String>.clearBoard(point: Point): List<String> {
     return temp
 }
 
-private fun List<String>.printBoard(currentPosition: Point, direction: Direction) {
-    walkIndexed { x, y, c ->
+private fun printBoard(
+    board: List<String>,
+    currentPosition: Point,
+    direction: Direction,
+    obstacle: Point = Point(-1, -1)
+) {
+    board.walkIndexed { x, y, c ->
         when {
+            x == obstacle.x && y == obstacle.y -> print('0')
             x == currentPosition.x && y == currentPosition.y -> print(direction.character)
             else -> print(c)
         }
-        if (x == first().indices.last) println()
+        if (x == board.first().indices.last) println()
     }
     println("----------------------------------------")
 }
