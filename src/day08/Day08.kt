@@ -5,17 +5,123 @@ import utils.Point
 import utils.walkIndexed
 import utils.withStopwatch
 import kotlin.math.abs
+import kotlin.math.max
+import kotlin.math.min
 
 fun main() {
     val testInput = readInput("input_day08_test")
     val input = readInput("input_day08")
 
     withStopwatch {
-        println(solve(input).count())
+        println(solvePt1(input).count())
+        println(solvePt2(input).count())
     }
 }
 
-private fun solve(input: List<String>): Set<Point> {
+private fun solvePt2(input: List<String>): Set<Point> {
+    val antennas = mutableMapOf<Char, Set<Point>>()
+    val freqLocations = mutableSetOf<Point>()
+
+    val xRange = input.first().indices
+    val yRange = input.indices
+
+    input.walkIndexed { x, y, c ->
+        if (c != '.') {
+            val positions = antennas.getOrDefault(c, emptySet())
+            antennas[c] = positions.plus(Point(x, y))
+        }
+    }
+
+    freqLocations.addAll(antennas.flatMap { it.value })
+
+    antennas.forEach { (_, set) ->
+        val antennasPositions = set.toMutableSet()
+        var current = antennasPositions.first()
+        antennasPositions.remove(current)
+
+        while (antennasPositions.isNotEmpty()) {
+            antennasPositions.forEach { other ->
+                when {
+                    current.x == other.x -> {
+                        generateAntennas(current.y, other.y, yRange) { y ->
+                            freqLocations.add(Point(current.x, y))
+                        }
+                    }
+
+                    current.y == other.y -> {
+                        generateAntennas(current.x, other.x, xRange) { x ->
+                            freqLocations.add(Point(x, current.y))
+                        }
+                    }
+
+                    else -> {
+                        generateAntennas(current, other, xRange, yRange) { x, y ->
+                            freqLocations.add(Point(x, y))
+                        }
+                    }
+                }
+            }
+            current = antennasPositions.first()
+            antennasPositions.remove(current)
+        }
+    }
+
+    return freqLocations
+}
+
+private fun generateAntennas(p1: Point, p2: Point, xRange: IntRange, yRange: IntRange, onValue: (Int, Int) -> Unit) {
+    val diffY = abs(p1.y - p2.y)
+    val diffX = abs(p1.x - p2.x)
+    val (px1, px2) = listOf(p1, p2).sortedBy { it.x }
+
+    if (px1.y > px2.y) {
+        var currentX = px1.x - diffX
+        var currentY = px1.y + diffY
+        while (currentX in xRange && currentY in yRange) {
+            onValue(currentX, currentY)
+            currentX -= diffX
+            currentY += diffY
+        }
+
+        currentX = px2.x + diffX
+        currentY = px2.y - diffY
+        while (currentX in xRange && currentY in yRange) {
+            onValue(currentX, currentY)
+            currentX += diffX
+            currentY -= diffY
+        }
+    }
+    if (px1.y < px2.y) {
+        var currentX = px1.x - diffX
+        var currentY = px1.y - diffY
+        while (currentX in xRange && currentY in yRange) {
+            onValue(currentX, currentY)
+            currentX -= diffX
+            currentY -= diffY
+        }
+
+        currentX = px2.x + diffX
+        currentY = px2.y + diffY
+        while (currentX in xRange && currentY in yRange) {
+            onValue(currentX, currentY)
+            currentX += diffX
+            currentY += diffY
+        }
+    }
+}
+
+private fun generateAntennas(v1: Int, v2: Int, maxRange: IntRange, onValue: (Int) -> Unit) {
+    val diffY = abs(v1 - v2)
+
+    for (v in min(v1, v2) downTo maxRange.first step diffY) {
+        onValue(v)
+    }
+    for (v in max(v1, v2)..maxRange.last step diffY) {
+        onValue(v)
+    }
+}
+
+private fun solvePt1(input: List<String>): Set<Point> {
     val antennas = mutableMapOf<Char, Set<Point>>()
     val freqLocations = mutableSetOf<Point>()
 
@@ -65,19 +171,5 @@ private fun solve(input: List<String>): Set<Point> {
         }
     }
 
-    printBoard(input, freqLocations)
     return freqLocations
-}
-
-private fun printBoard(
-    board: List<String>,
-    freqLocations: Set<Point>,
-) {
-    board.walkIndexed { x, y, c ->
-        when {
-            freqLocations.contains(Point(x, y)) -> print('#')
-            else -> print(c)
-        }
-        if (x == board.first().indices.last) println()
-    }
 }
