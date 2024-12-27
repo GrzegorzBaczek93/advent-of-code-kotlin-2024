@@ -76,6 +76,17 @@ inline fun List<String>.walkIndexed(action: (x: Int, y: Int, c: Char) -> Unit) {
 }
 
 /**
+ * For each indexed for two-dimensional
+ */
+inline fun <T> List<List<T>>.indexed(action: (x: Int, y: Int, e: T) -> Unit) {
+    forEachIndexed { y, internal ->
+        internal.forEachIndexed { x, e ->
+            action(x, y, e)
+        }
+    }
+}
+
+/**
  * Increases value in index element or put default value there instead
  */
 fun MutableList<Int>.putOrIncreaseBy(index: Int, value: Int = 1) {
@@ -125,3 +136,9 @@ fun <T> List<T>.without(index: Int): List<T> {
     mutable.removeAt(index)
     return mutable
 }
+
+/**
+ * Returns a list with strings mapped as list of int
+ */
+fun List<String>.asListOfInt(): List<List<Int>> =
+    this.map { it.toList().map { it.digitToInt() } }

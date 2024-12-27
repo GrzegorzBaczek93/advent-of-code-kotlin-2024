@@ -9,3 +9,17 @@ fun Collection<Any>.printLines() {
         println(iterator.next())
     }
 }
+
+/**
+ * Prints any value in new line
+ */
+fun Any.println() {
+    println(this)
+}
+
+/**
+ * Prints any value in same line
+ */
+fun Any.print() {
+    print(this)
+}
