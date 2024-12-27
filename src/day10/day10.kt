@@ -9,14 +9,15 @@ fun main() {
 
     withStopwatch {
         println(countTrails(input.asListOfInt()))
+        println(countTrails(input.asListOfInt(), false))
     }
 }
 
-private fun countTrails(input: List<List<Int>>): Int {
+private fun countTrails(input: List<List<Int>>, distinct: Boolean = true): Int {
     val heads = findAllHeads(input)
 
     return heads.fold(0) { acc, head ->
-        acc + findTrails(input, head).toSet().count()
+        acc + findTrails(input, head).let { if (distinct) it.toSet() else it }.count()
     }
 }
 
