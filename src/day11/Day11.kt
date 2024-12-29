@@ -13,18 +13,29 @@ fun main() {
     }
 }
 
-private fun solve(input: String): Int {
-    var stones = input.split(" ").map { it.toLong() }
+private fun solve(input: String): Long {
+    val stones = input.split(" ").map { it.toLong() }
 
-    repeat(25) {
-        val temp = mutableListOf<Long>()
-        stones.forEach { stone ->
-            temp.addAll(stone.transform())
-        }
-        stones = temp
+    return stones.sumOf { stone ->
+        stone.blink(75)
+    }
+}
+
+val memo = mutableMapOf<Pair<Long, Int>, Long>()
+
+private fun Long.blink(counter: Int): Long {
+    if (counter == 0) return 1L
+
+    memo[this to counter]?.let { return it }
+
+    val transformationResult = this.transform()
+    val result = transformationResult.sumOf { res ->
+        res.blink(counter - 1)
     }
 
-    return stones.count()
+    memo[this to counter] = result
+
+    return result
 }
 
 private fun Long.transform(): List<Long> {
