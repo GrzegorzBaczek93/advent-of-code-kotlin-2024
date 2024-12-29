@@ -1,7 +1,7 @@
 package day06
 
 import readInput
-import utils.Point
+import utils.Position
 import utils.swap
 import utils.walkIndexed
 import utils.withStopwatch
@@ -10,23 +10,23 @@ private const val MAX_PATH_LENGTH = 25000
 
 private enum class Direction(val character: Char) {
     Up('^') {
-        override fun nextPosition(position: Point) = Point(position.x, position.y - 1)
+        override fun nextPosition(position: Position) = Position(position.x, position.y - 1)
         override fun changeDirection() = Right
     },
     Down('v') {
-        override fun nextPosition(position: Point) = Point(position.x, position.y + 1)
+        override fun nextPosition(position: Position) = Position(position.x, position.y + 1)
         override fun changeDirection() = Left
     },
     Left('<') {
-        override fun nextPosition(position: Point) = Point(position.x - 1, position.y)
+        override fun nextPosition(position: Position) = Position(position.x - 1, position.y)
         override fun changeDirection() = Up
     },
     Right('>') {
-        override fun nextPosition(position: Point) = Point(position.x + 1, position.y)
+        override fun nextPosition(position: Position) = Position(position.x + 1, position.y)
         override fun changeDirection() = Down
     };
 
-    abstract fun nextPosition(position: Point): Point
+    abstract fun nextPosition(position: Position): Position
     abstract fun changeDirection(): Direction
 
     companion object {
@@ -48,11 +48,11 @@ fun main() {
 
 private fun possibleObstructions(
     board: List<String>,
-    position: Point,
+    position: Position,
     direction: Direction,
-    guardPath: Set<Point>,
-): Set<Point> {
-    val possibleObstructions = mutableSetOf<Point>()
+    guardPath: Set<Position>,
+): Set<Position> {
+    val possibleObstructions = mutableSetOf<Position>()
     val mutableGuardPath = guardPath.toMutableSet()
 
     while (mutableGuardPath.isNotEmpty()) {
@@ -67,14 +67,14 @@ private fun possibleObstructions(
 
 private fun verifyPath(
     board: List<String>,
-    position: Point,
+    position: Position,
     direction: Direction,
-    obstacle: Point
+    obstacle: Position
 ): Boolean {
     var counter = 0
     var currentPosition = position
     var currentDirection = direction
-    val visitedPositions = mutableMapOf<Point, Direction>()
+    val visitedPositions = mutableMapOf<Position, Direction>()
 
     while (counter < MAX_PATH_LENGTH) {
         val nextPosition = currentDirection.nextPosition(currentPosition)
@@ -98,12 +98,12 @@ private fun verifyPath(
 
 private fun guardPath(
     board: List<String>,
-    position: Point,
+    position: Position,
     direction: Direction,
-): Set<Point> {
+): Set<Position> {
     var currentPosition = position
     var currentDirection = direction
-    val visitedPositions = mutableSetOf<Point>()
+    val visitedPositions = mutableSetOf<Position>()
     visitedPositions.add(position)
 
     while (board.isInBounds(currentPosition)) {
@@ -125,9 +125,9 @@ private fun guardPath(
     return visitedPositions
 }
 
-private fun List<String>.findGuard(): Pair<Point, Direction> {
+private fun List<String>.findGuard(): Pair<Position, Direction> {
     walkIndexed { x, y, c ->
-        val position = Point(x, y)
+        val position = Position(x, y)
         Direction.getDirection(c)?.let { direction ->
             return position to direction
         }
@@ -136,21 +136,21 @@ private fun List<String>.findGuard(): Pair<Point, Direction> {
     throw Exception("There is no initial guard position my boi, check your input")
 }
 
-private fun List<String>.isInBounds(point: Point) = point.y in indices && point.x in first().indices
+private fun List<String>.isInBounds(position: Position) = position.y in indices && position.x in first().indices
 
-private fun List<String>.getChar(point: Point) = this[point.y][point.x]
+private fun List<String>.getChar(position: Position) = this[position.y][position.x]
 
-private fun List<String>.clearBoard(point: Point): List<String> {
+private fun List<String>.clearBoard(position: Position): List<String> {
     val temp = this.toMutableList()
-    temp[point.y] = temp[point.y].swap(point.x, '.')
+    temp[position.y] = temp[position.y].swap(position.x, '.')
     return temp
 }
 
 private fun printBoard(
     board: List<String>,
-    currentPosition: Point,
+    currentPosition: Position,
     direction: Direction,
-    obstacle: Point = Point(-1, -1)
+    obstacle: Position = Position(-1, -1)
 ) {
     board.walkIndexed { x, y, c ->
         when {

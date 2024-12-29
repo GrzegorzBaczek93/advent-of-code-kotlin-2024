@@ -21,7 +21,7 @@ private fun countTrails(input: List<List<Int>>, distinct: Boolean = true): Int {
     }
 }
 
-private fun findTrails(input: List<List<Int>>, pos: Point): List<Point> {
+private fun findTrails(input: List<List<Int>>, pos: Position): List<Position> {
     if (input.get(pos) == 9) {
         return listOf(pos)
     }
@@ -36,11 +36,11 @@ private fun findTrails(input: List<List<Int>>, pos: Point): List<Point> {
         .flatten()
 }
 
-private fun findAllHeads(input: List<List<Int>>): List<Point> {
-    val elements = mutableListOf<Point>()
+private fun findAllHeads(input: List<List<Int>>): List<Position> {
+    val elements = mutableListOf<Position>()
 
     input.indexed { x, y, e ->
-        if (e == 0) elements.addLast(Point(x, y))
+        if (e == 0) elements.addLast(Position(x, y))
     }
 
     return elements

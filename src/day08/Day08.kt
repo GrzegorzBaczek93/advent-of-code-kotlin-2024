@@ -1,7 +1,7 @@
 package day08
 
 import readInput
-import utils.Point
+import utils.Position
 import utils.walkIndexed
 import utils.withStopwatch
 import kotlin.math.abs
@@ -18,9 +18,9 @@ fun main() {
     }
 }
 
-private fun solvePt2(input: List<String>): Set<Point> {
-    val antennas = mutableMapOf<Char, Set<Point>>()
-    val freqLocations = mutableSetOf<Point>()
+private fun solvePt2(input: List<String>): Set<Position> {
+    val antennas = mutableMapOf<Char, Set<Position>>()
+    val freqLocations = mutableSetOf<Position>()
 
     val xRange = input.first().indices
     val yRange = input.indices
@@ -28,7 +28,7 @@ private fun solvePt2(input: List<String>): Set<Point> {
     input.walkIndexed { x, y, c ->
         if (c != '.') {
             val positions = antennas.getOrDefault(c, emptySet())
-            antennas[c] = positions.plus(Point(x, y))
+            antennas[c] = positions.plus(Position(x, y))
         }
     }
 
@@ -44,19 +44,19 @@ private fun solvePt2(input: List<String>): Set<Point> {
                 when {
                     current.x == other.x -> {
                         generateAntennas(current.y, other.y, yRange) { y ->
-                            freqLocations.add(Point(current.x, y))
+                            freqLocations.add(Position(current.x, y))
                         }
                     }
 
                     current.y == other.y -> {
                         generateAntennas(current.x, other.x, xRange) { x ->
-                            freqLocations.add(Point(x, current.y))
+                            freqLocations.add(Position(x, current.y))
                         }
                     }
 
                     else -> {
                         generateAntennas(current, other, xRange, yRange) { x, y ->
-                            freqLocations.add(Point(x, y))
+                            freqLocations.add(Position(x, y))
                         }
                     }
                 }
@@ -69,7 +69,7 @@ private fun solvePt2(input: List<String>): Set<Point> {
     return freqLocations
 }
 
-private fun generateAntennas(p1: Point, p2: Point, xRange: IntRange, yRange: IntRange, onValue: (Int, Int) -> Unit) {
+private fun generateAntennas(p1: Position, p2: Position, xRange: IntRange, yRange: IntRange, onValue: (Int, Int) -> Unit) {
     val diffY = abs(p1.y - p2.y)
     val diffX = abs(p1.x - p2.x)
     val (px1, px2) = listOf(p1, p2).sortedBy { it.x }
@@ -121,9 +121,9 @@ private fun generateAntennas(v1: Int, v2: Int, maxRange: IntRange, onValue: (Int
     }
 }
 
-private fun solvePt1(input: List<String>): Set<Point> {
-    val antennas = mutableMapOf<Char, Set<Point>>()
-    val freqLocations = mutableSetOf<Point>()
+private fun solvePt1(input: List<String>): Set<Position> {
+    val antennas = mutableMapOf<Char, Set<Position>>()
+    val freqLocations = mutableSetOf<Position>()
 
     val xRange = input.first().indices
     val yRange = input.indices
@@ -131,7 +131,7 @@ private fun solvePt1(input: List<String>): Set<Point> {
     input.walkIndexed { x, y, c ->
         if (c != '.') {
             val positions = antennas.getOrDefault(c, emptySet())
-            antennas[c] = positions.plus(Point(x, y))
+            antennas[c] = positions.plus(Position(x, y))
         }
     }
 
@@ -163,8 +163,8 @@ private fun solvePt1(input: List<String>): Set<Point> {
                 val (y1, y2) = getNewValues(current.y, other.y)
                 val (x1, x2) = getNewValues(current.x, other.x)
 
-                if (x1 in xRange && y1 in yRange) freqLocations.add(Point(x1, y1))
-                if (x2 in xRange && y2 in yRange) freqLocations.add(Point(x2, y2))
+                if (x1 in xRange && y1 in yRange) freqLocations.add(Position(x1, y1))
+                if (x2 in xRange && y2 in yRange) freqLocations.add(Position(x2, y2))
             }
             current = antennasPositions.first()
             antennasPositions.remove(current)
